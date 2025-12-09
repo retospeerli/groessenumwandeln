@@ -178,7 +178,7 @@
   <h1>Masseinheiten</h1>
   <div class="subtitle">
     Wähle eine Art von Masseinheiten (Länge, Gewicht oder Volumen).<br>
-    15 Aufgaben, jeweils mit 15 Sekunden Zeit. Zahlenraum bis 1000.
+    15 Aufgaben, Zeit pro Aufgabe je nach Tempo-Auswahl (15 – 30 Sekunden). Zahlenraum bis 1000.
   </div>
 
   <!-- Start-Bereich mit Kategorien-Auswahl -->
@@ -194,6 +194,16 @@
     </div>
 
     <div class="selected-info" id="selected-info"></div>
+
+    <div class="center" style="margin-top:0.8rem;">
+      <p>Wähle dein Tempo:</p>
+    </div>
+    <div class="choice-grid" id="speed-grid">
+      <button type="button" class="choice-btn speed-btn" data-seconds="30">Einfach (30 s)</button>
+      <button type="button" class="choice-btn speed-btn" data-seconds="20">Mittel (20 s)</button>
+      <button type="button" class="choice-btn speed-btn" data-seconds="15">Schwierig (15 s)</button>
+    </div>
+    <div class="selected-info" id="speed-info"></div>
 
     <button class="primary-btn" id="start-btn" disabled>Los!</button>
   </div>
@@ -232,8 +242,8 @@
 <script>
   // --- Konfiguration ---
   const TOTAL_QUESTIONS = 15;
-  const TIME_PER_QUESTION = 15; // Sekunden
-  const MAX_VALUE = 1000;       // Zahlenraum bis 1000
+  let TIME_PER_QUESTION = 20; // wird durch Tempo-Auswahl gesetzt
+  const MAX_VALUE = 1000;     // Zahlenraum bis 1000
 
   // Nur Nachbareinheiten, in beide Richtungen, komplett ganzzahlig
   // op: 'mul' (to = from * factor) oder 'div' (to = from / factor)
@@ -242,20 +252,17 @@
       // m <-> dm (benachbart)
       { from: 'm',  to: 'dm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – m in dm' },
       { from: 'dm', to: 'm',  op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – dm in m' },
-
       // dm <-> cm
       { from: 'dm', to: 'cm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – dm in cm' },
       { from: 'cm', to: 'dm', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – cm in dm' },
-
       // cm <-> mm
       { from: 'cm', to: 'mm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – cm in mm' },
       { from: 'mm', to: 'cm', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – mm in cm' }
     ],
     weight: [
-      // kg <-> g (direkt, im Unterricht als Nachbareinheiten genutzt)
+      // kg <-> g
       { from: 'kg', to: 'g',  op: 'mul', factor: 1000, min: 1,    max: 1,    step: 1,    label: 'Gewicht – kg in g' },
       { from: 'g',  to: 'kg', op: 'div', factor: 1000, min: 1000, max: 1000, step: 1000, label: 'Gewicht – g in kg' },
-
       // t <-> kg
       { from: 't',  to: 'kg', op: 'mul', factor: 1000, min: 1,    max: 1,    step: 1,    label: 'Gewicht – t in kg' },
       { from: 'kg', to: 't',  op: 'div', factor: 1000, min: 1000, max: 1000, step: 1000, label: 'Gewicht – kg in t' }
@@ -264,12 +271,10 @@
       // l <-> dl
       { from: 'l',  to: 'dl', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – l in dl' },
       { from: 'dl', to: 'l',  op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – dl in l' },
-
       // dl <-> cl
       { from: 'dl', to: 'cl', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – dl in cl' },
       { from: 'cl', to: 'dl', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – cl in dl' },
-
-      // cl <-> ml (wie in deiner Vorgabe ml - cl, cl - ml)
+      // cl <-> ml
       { from: 'cl', to: 'ml', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – cl in ml' },
       { from: 'ml', to: 'cl', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – ml in cl' }
     ]
@@ -277,8 +282,9 @@
 
   // --- Statusvariablen ---
   let selectedCategory = null;   // 'length' | 'weight' | 'volume'
-  let currentQuestion = null;
+  let selectedTime = null;       // 15 | 20 | 30
 
+  let currentQuestion = null;
   let questionsDone = 0;
   let correctAnswers = 0;
   let wrongAnswers = 0;
@@ -296,11 +302,15 @@
   const selectedInfo = document.getElementById('selected-info');
   const startBtn = document.getElementById('start-btn');
 
+  const speedGrid = document.getElementById('speed-grid');
+  const speedInfo = document.getElementById('speed-info');
+
   const progressText = document.getElementById('progress-text');
   const equationText = document.getElementById('equation-text');
   const variantLabel = document.getElementById('variant-label');
   const answerInput = document.getElementById('answer-input');
   const feedback = document.getElementById('feedback');
+
   const statCorrect = document.getElementById('stat-correct');
   const statTotal = document.getElementById('stat-total');
   const statWrong = document.getElementById('stat-wrong');
@@ -320,7 +330,6 @@
       } else {
         selectedCategory = cat;
       }
-
       choiceGrid.querySelectorAll('.choice-btn').forEach(b => {
         if (b.getAttribute('data-category') === selectedCategory) {
           b.classList.add('selected');
@@ -328,15 +337,14 @@
           b.classList.remove('selected');
         }
       });
-
       updateSelectedInfo();
+      updateStartButtonState();
     });
   });
 
   function updateSelectedInfo() {
     if (!selectedCategory) {
       selectedInfo.textContent = 'Keine Kategorie ausgewählt.';
-      startBtn.disabled = true;
       return;
     }
     let text = '';
@@ -344,7 +352,46 @@
     if (selectedCategory === 'weight') text = 'Ausgewählte Kategorie: Gewicht';
     if (selectedCategory === 'volume') text = 'Ausgewählte Kategorie: Volumen';
     selectedInfo.textContent = text;
-    startBtn.disabled = false;
+  }
+
+  // --- Tempo-Auswahl ---
+  speedGrid.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const secs = Number(btn.getAttribute('data-seconds'));
+      if (selectedTime === secs) {
+        selectedTime = null;
+      } else {
+        selectedTime = secs;
+      }
+
+      speedGrid.querySelectorAll('.speed-btn').forEach(b => {
+        const s = Number(b.getAttribute('data-seconds'));
+        b.classList.toggle('selected', s === selectedTime);
+      });
+
+      updateSpeedInfo();
+      updateStartButtonState();
+    });
+  });
+
+  function updateSpeedInfo() {
+    if (!selectedTime) {
+      speedInfo.textContent = 'Kein Tempo ausgewählt.';
+      return;
+    }
+    let label = '';
+    if (selectedTime === 30) label = 'Einfach (30 Sekunden pro Aufgabe)';
+    if (selectedTime === 20) label = 'Mittel (20 Sekunden pro Aufgabe)';
+    if (selectedTime === 15) label = 'Schwierig (15 Sekunden pro Aufgabe)';
+    speedInfo.textContent = 'Ausgewähltes Tempo: ' + label;
+  }
+
+  function updateStartButtonState() {
+    if (selectedCategory && selectedTime) {
+      startBtn.disabled = false;
+    } else {
+      startBtn.disabled = true;
+    }
   }
 
   // --- Events ---
@@ -377,7 +424,9 @@
 
   // --- Trainingsstart ---
   function startTraining() {
-    if (!selectedCategory) return;
+    if (!selectedCategory || !selectedTime) return;
+
+    TIME_PER_QUESTION = selectedTime;
 
     questionsDone = 0;
     correctAnswers = 0;
@@ -593,6 +642,8 @@
 
   // Initialer Text
   updateSelectedInfo();
+  updateSpeedInfo();
+  updateStartButtonState();
 </script>
 </body>
 </html>
