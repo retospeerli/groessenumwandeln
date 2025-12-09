@@ -2,11 +2,11 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Masseinheiten – Selbsttest (LearningView)</title>
+  <title>Einmaleins-Training – Gamification</title>
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f4f6;
+      background: #e5e7eb;
     }
     body {
       margin: 0;
@@ -17,17 +17,17 @@
     }
     .app {
       background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
       padding: 2rem 2.5rem;
-      max-width: 560px;
+      max-width: 700px;
       width: 100%;
       box-sizing: border-box;
     }
     h1 {
       margin-top: 0;
       text-align: center;
-      font-size: 1.6rem;
+      font-size: 1.7rem;
     }
     .subtitle {
       text-align: center;
@@ -35,24 +35,34 @@
       margin-bottom: 1.2rem;
       font-size: 0.95rem;
     }
-    .center {
-      text-align: center;
+    .center { text-align: center; }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      margin-top: 0.4rem;
+      margin-bottom: 0.2rem;
     }
+
     .choice-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.6rem;
-      margin: 1rem 0 0.5rem;
+      margin-bottom: 0.6rem;
     }
     .choice-btn {
-      padding: 0.9rem 0.6rem;
-      border-radius: 16px;
+      padding: 0.8rem 0.6rem;
+      border-radius: 14px;
       border: 2px solid #d1d5db;
       background: #f9fafb;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s ease, transform 0.05s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: background 0.15s ease, transform 0.05s ease,
+                  border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .choice-btn.selected {
       background: #2563eb;
@@ -60,9 +70,8 @@
       border-color: #1d4ed8;
       box-shadow: 0 5px 15px rgba(37,99,235,0.35);
     }
-    .choice-btn:active {
-      transform: translateY(1px);
-    }
+    .choice-btn:active { transform: translateY(1px); }
+
     .selected-info {
       font-size: 0.85rem;
       color: #6b7280;
@@ -70,37 +79,12 @@
       min-height: 1.2rem;
       margin-bottom: 0.5rem;
     }
-    .equation {
-      font-size: 1.9rem;
-      font-weight: 600;
-      margin: 1rem 0;
-      text-align: center;
-    }
-    .progress {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-    input[type="number"] {
-      width: 100%;
-      padding: 0.7rem 0.9rem;
-      font-size: 1.2rem;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
-    }
+
     .primary-btn {
       margin-top: 0.9rem;
       width: 100%;
       padding: 0.7rem 1rem;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       border-radius: 999px;
       border: none;
       cursor: pointer;
@@ -109,9 +93,7 @@
       font-weight: 600;
       transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.2s ease;
     }
-    .primary-btn:hover {
-      background: #1d4ed8;
-    }
+    .primary-btn:hover { background: #1d4ed8; }
     .primary-btn:active {
       transform: translateY(1px);
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
@@ -142,457 +124,590 @@
       transform: translateY(1px);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
+
+    .hidden { display: none; }
+
+    /* Quizbereich */
+    .equation {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0.4rem 0 0.3rem;
+      text-align: center;
+    }
+    .equation input {
+      width: 5rem;
+      font-size: 1.3rem;
+      padding: 0.15rem 0.3rem;
+      text-align: center;
+      border-radius: 8px;
+      border: 2px solid #d1d5db;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #4b5563;
+      margin-top: 0.3rem;
+    }
+
+    .timer {
+      font-weight: 700;
+    }
+    .timer.low { color: #b91c1c; }
+
     .feedback {
       min-height: 1.4rem;
       margin-top: 0.4rem;
       font-weight: 500;
       text-align: center;
     }
-    .feedback.ok {
-      color: #15803d;
-    }
-    .feedback.error {
-      color: #b91c1c;
-    }
-    .hidden {
-      display: none;
-    }
+    .feedback.ok { color: #15803d; }
+    .feedback.error { color: #b91c1c; }
+
     .stats {
-      margin-top: 1rem;
-      font-size: 0.95rem;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
       color: #374151;
     }
-    .tag {
-      display: inline-block;
+
+    /* Arena */
+    .arena-wrapper {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border-radius: 14px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+    .arena-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+    }
+    .score {
+      font-weight: 600;
+    }
+    .arena {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .fighter {
+      font-size: 2rem;
+    }
+    .track {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      gap: 0.1rem;
+      align-items: center;
+    }
+    .track-cell {
+      height: 14px;
       border-radius: 999px;
-      padding: 0.1rem 0.6rem;
-      font-size: 0.8rem;
-      background: #eff6ff;
-      color: #1d4ed8;
-      margin-top: 0.3rem;
+      background: #e5e7eb;
+      position: relative;
+    }
+    .track-cell.mid {
+      background: #d1d5db;
+    }
+    .marker {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fbbf24;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.08);
+    }
+
+    /* Ergebnis-Screen */
+    #result-screen h2 {
+      margin-bottom: 0.3rem;
+    }
+    #result-summary {
+      font-size: 0.95rem;
+      color: #374151;
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <h1>Masseinheiten</h1>
+  <h1>Einmaleins – Trainingskampf</h1>
   <div class="subtitle">
-    Wähle eine Art von Masseinheiten (Länge, Gewicht oder Volumen).<br>
-    15 Aufgaben, jeweils mit 15 Sekunden Zeit. Zahlenraum bis 1000.
+    Wähle Klasse, Aufgabentyp und Schwierigkeit.<br>
+    Löse die Einmaleins-Aufgaben gegen den „PC-Ringer“.
   </div>
 
-  <!-- Start-Bereich mit Kategorien-Auswahl -->
+  <!-- Startscreen -->
   <div id="start-screen">
-    <div class="center">
-      <p>Bitte genau <strong>eine</strong> Kategorie auswählen.</p>
+    <div class="section-title">Klasse</div>
+    <div class="choice-grid" id="grade-grid">
+      <button type="button" class="choice-btn grade-btn" data-grade="3">3. Klasse</button>
+      <button type="button" class="choice-btn grade-btn" data-grade="4">4. Klasse</button>
     </div>
 
-    <div class="choice-grid" id="choice-grid">
-      <button type="button" class="choice-btn" data-category="length">Längen</button>
-      <button type="button" class="choice-btn" data-category="weight">Gewicht</button>
-      <button type="button" class="choice-btn" data-category="volume">Volumen</button>
+    <div class="section-title">Aufgabentyp</div>
+    <div class="choice-grid" id="mode-grid">
+      <button type="button" class="choice-btn mode-btn" data-mode="normal">
+        Normales Einmaleins
+      </button>
+      <button type="button" class="choice-btn mode-btn" data-mode="tens">
+        10er-Einmaleins
+      </button>
+    </div>
+
+    <div class="section-title">Schwierigkeit / Zeit pro Aufgabe</div>
+    <div class="choice-grid" id="difficulty-grid">
+      <button type="button" class="choice-btn diff-btn" data-diff="easy">
+        einfach (30&nbsp;s)
+      </button>
+      <button type="button" class="choice-btn diff-btn" data-diff="medium">
+        mittel (20&nbsp;s)
+      </button>
+      <button type="button" class="choice-btn diff-btn" data-diff="hard">
+        schwierig (15&nbsp;s)
+      </button>
     </div>
 
     <div class="selected-info" id="selected-info"></div>
-
-    <button class="primary-btn" id="start-btn" disabled>Los!</button>
+    <button class="primary-btn" id="start-btn" disabled>Los geht's!</button>
   </div>
 
-  <!-- Quiz-Bereich -->
+  <!-- Quiz-Screen -->
   <div id="quiz-screen" class="hidden">
-    <div class="progress" id="progress-text"></div>
-    <div class="center">
-      <div class="tag" id="variant-label"></div>
-      <div class="equation" id="equation-text">__</div>
+    <div class="info-row">
+      <div id="mode-label"></div>
+      <div class="timer" id="timer-display"></div>
     </div>
-    <input type="number" id="answer-input" placeholder="Deine Antwort" autocomplete="off">
-    <button class="primary-btn" id="submit-btn">OK</button>
+
+    <div class="equation">
+      <span id="factor-a">3</span>
+      &nbsp;×&nbsp;
+      <span id="factor-b">4</span>
+      &nbsp;=&nbsp;
+      <input type="number" id="answer-input" autocomplete="off">
+    </div>
+
+    <div class="center">
+      <button class="primary-btn" id="answer-btn" style="max-width:260px;margin-top:0.7rem;">
+        Antwort prüfen
+      </button>
+    </div>
+
     <div class="feedback" id="feedback"></div>
+
     <div class="stats">
-      Richtig: <span id="stat-correct">0</span> / <span id="stat-total">15</span><br>
-      Falsche Versuche (inkl. Zeit abgelaufen): <span id="stat-wrong">0</span><br>
-      Kategorie: <span id="stat-category"></span>
+      Aufgaben gelöst: <span id="stat-questions">0</span><br>
+      Spieler-Punkte: <span id="stat-player">0</span> – PC-Punkte: <span id="stat-pc">0</span>
+    </div>
+
+    <div class="arena-wrapper">
+      <div class="arena-header">
+        <div class="score" id="score-text">0 : 0</div>
+        <div style="font-size:0.85rem;color:#6b7280;">
+          4 Schritte nach rechts = Punkt für dich<br>
+          4 Schritte nach links = Punkt für PC
+        </div>
+      </div>
+      <div class="arena">
+        <div class="fighter">🤖</div>
+        <div class="track" id="track">
+          <!-- 9 Zellen, Mitte markiert -->
+        </div>
+        <div class="fighter">🤼‍♂️</div>
+      </div>
     </div>
   </div>
 
-  <!-- Ergebnis-Bereich -->
+  <!-- Ergebnis-Screen -->
   <div id="result-screen" class="hidden center">
-    <h2>Fertig! 🎉</h2>
+    <h2 id="result-title">Fertig!</h2>
     <p id="result-summary"></p>
     <p style="margin-top:0.8rem; font-size:0.9rem; color:#4b5563;">
-      Wenn du mit deinem Ergebnis zufrieden bist,<br>
-      klicke auf <strong>„Fertig“</strong>, damit LearningView den Auftrag als erledigt markiert.<br>
-      Oder klicke auf <strong>„Weiter üben“</strong>, um zur Auswahl zurückzukehren.
+      Wenn du fertig bist, klicke auf <strong>„Fertig“</strong>, damit LearningView den Auftrag als erledigt markiert.<br>
+      Mit <strong>„Nochmals spielen“</strong> kannst du einen neuen Kampf starten.
     </p>
     <button class="primary-btn" id="finish-btn">Fertig</button>
-    <button class="secondary-btn" id="restart-btn">Weiter üben</button>
+    <button class="secondary-btn" id="again-btn">Nochmals spielen</button>
   </div>
 </div>
 
 <script>
   // --- Konfiguration ---
-  const TOTAL_QUESTIONS = 15;
-  const TIME_PER_QUESTION = 15; // Sekunden
-  const MAX_VALUE = 1000;       // Zahlenraum bis 1000
+  const STEP_WIN = 4;      // 4 Schritte nach links/rechts = Punkt
+  const POINTS_TO_WIN = 3; // 3 Punkte = Spielende
 
-  // Nur Nachbareinheiten, in beide Richtungen, komplett ganzzahlig
-  // op: 'mul' (to = from * factor) oder 'div' (to = from / factor)
-  const CONVERSIONS = {
-    length: [
-      // m <-> dm (benachbart)
-      { from: 'm',  to: 'dm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – m in dm' },
-      { from: 'dm', to: 'm',  op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – dm in m' },
-
-      // dm <-> cm
-      { from: 'dm', to: 'cm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – dm in cm' },
-      { from: 'cm', to: 'dm', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – cm in dm' },
-
-      // cm <-> mm
-      { from: 'cm', to: 'mm', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Längen – cm in mm' },
-      { from: 'mm', to: 'cm', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Längen – mm in cm' }
-    ],
-    weight: [
-      // kg <-> g (direkt, im Unterricht als Nachbareinheiten genutzt)
-      { from: 'kg', to: 'g',  op: 'mul', factor: 1000, min: 1,    max: 1,    step: 1,    label: 'Gewicht – kg in g' },
-      { from: 'g',  to: 'kg', op: 'div', factor: 1000, min: 1000, max: 1000, step: 1000, label: 'Gewicht – g in kg' },
-
-      // t <-> kg
-      { from: 't',  to: 'kg', op: 'mul', factor: 1000, min: 1,    max: 1,    step: 1,    label: 'Gewicht – t in kg' },
-      { from: 'kg', to: 't',  op: 'div', factor: 1000, min: 1000, max: 1000, step: 1000, label: 'Gewicht – kg in t' }
-    ],
-    volume: [
-      // l <-> dl
-      { from: 'l',  to: 'dl', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – l in dl' },
-      { from: 'dl', to: 'l',  op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – dl in l' },
-
-      // dl <-> cl
-      { from: 'dl', to: 'cl', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – dl in cl' },
-      { from: 'cl', to: 'dl', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – cl in dl' },
-
-      // cl <-> ml (wie in deiner Vorgabe ml - cl, cl - ml)
-      { from: 'cl', to: 'ml', op: 'mul', factor: 10,  min: 1,   max: 100,  step: 1,   label: 'Volumen – cl in ml' },
-      { from: 'ml', to: 'cl', op: 'div', factor: 10,  min: 10,  max: 1000, step: 10,  label: 'Volumen – ml in cl' }
-    ]
+  const TIME_LIMITS = {
+    easy: 30,
+    medium: 20,
+    hard: 15
   };
 
-  // --- Statusvariablen ---
-  let selectedCategory = null;   // 'length' | 'weight' | 'volume'
-  let currentQuestion = null;
+  // --- State ---
+  let selectedGrade = null;      // '3' oder '4'
+  let selectedMode = null;       // 'normal' oder 'tens'
+  let selectedDifficulty = null; // 'easy' | 'medium' | 'hard'
 
-  let questionsDone = 0;
-  let correctAnswers = 0;
-  let wrongAnswers = 0;
-  let usedQuestions = [];        // Strings, um Wiederholung zu vermeiden
-
-  let timeLeft = TIME_PER_QUESTION;
+  let timeLimit = 30;
+  let timeLeft = 30;
   let timerId = null;
 
-  // --- DOM Referenzen ---
+  let currentA = 0;
+  let currentB = 0;
+  let currentResult = 0;
+
+  let position = 0;      // -4..+4, 0 = Mitte
+  let playerPoints = 0;
+  let pcPoints = 0;
+  let questionsCount = 0;
+
+  let gameOver = false;
+
+  // --- DOM ---
   const startScreen = document.getElementById('start-screen');
   const quizScreen = document.getElementById('quiz-screen');
   const resultScreen = document.getElementById('result-screen');
 
-  const choiceGrid = document.getElementById('choice-grid');
+  const gradeGrid = document.getElementById('grade-grid');
+  const modeGrid = document.getElementById('mode-grid');
+  const diffGrid = document.getElementById('difficulty-grid');
   const selectedInfo = document.getElementById('selected-info');
   const startBtn = document.getElementById('start-btn');
 
-  const progressText = document.getElementById('progress-text');
-  const equationText = document.getElementById('equation-text');
-  const variantLabel = document.getElementById('variant-label');
+  const modeLabel = document.getElementById('mode-label');
+  const timerDisplay = document.getElementById('timer-display');
+  const factorAEl = document.getElementById('factor-a');
+  const factorBEl = document.getElementById('factor-b');
   const answerInput = document.getElementById('answer-input');
-  const feedback = document.getElementById('feedback');
-  const statCorrect = document.getElementById('stat-correct');
-  const statTotal = document.getElementById('stat-total');
-  const statWrong = document.getElementById('stat-wrong');
-  const statCategory = document.getElementById('stat-category');
+  const answerBtn = document.getElementById('answer-btn');
+  const feedbackEl = document.getElementById('feedback');
 
-  const submitBtn = document.getElementById('submit-btn');
-  const restartBtn = document.getElementById('restart-btn');
-  const finishBtn = document.getElementById('finish-btn');
+  const statQuestions = document.getElementById('stat-questions');
+  const statPlayer = document.getElementById('stat-player');
+  const statPc = document.getElementById('stat-pc');
+  const scoreText = document.getElementById('score-text');
+  const trackEl = document.getElementById('track');
+
+  const resultTitle = document.getElementById('result-title');
   const resultSummary = document.getElementById('result-summary');
+  const finishBtn = document.getElementById('finish-btn');
+  const againBtn = document.getElementById('again-btn');
 
-  // --- Kategorie-Auswahl klickbar machen ---
-  choiceGrid.querySelectorAll('.choice-btn').forEach(btn => {
+  // --- Auswahl-Buttons ---
+  gradeGrid.querySelectorAll('.grade-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const cat = btn.getAttribute('data-category');
-      if (selectedCategory === cat) {
-        selectedCategory = null;
-      } else {
-        selectedCategory = cat;
-      }
+      const g = btn.dataset.grade;
+      selectedGrade = (selectedGrade === g) ? null : g;
 
-      choiceGrid.querySelectorAll('.choice-btn').forEach(b => {
-        if (b.getAttribute('data-category') === selectedCategory) {
-          b.classList.add('selected');
-        } else {
-          b.classList.remove('selected');
-        }
+      gradeGrid.querySelectorAll('.grade-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.grade === selectedGrade);
       });
-
-      updateSelectedInfo();
+      updateStartState();
     });
   });
 
-  function updateSelectedInfo() {
-    if (!selectedCategory) {
-      selectedInfo.textContent = 'Keine Kategorie ausgewählt.';
+  modeGrid.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.dataset.mode;
+      selectedMode = (selectedMode === m) ? null : m;
+
+      modeGrid.querySelectorAll('.mode-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.mode === selectedMode);
+      });
+      updateStartState();
+    });
+  });
+
+  diffGrid.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const d = btn.dataset.diff;
+      selectedDifficulty = (selectedDifficulty === d) ? null : d;
+
+      diffGrid.querySelectorAll('.diff-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.diff === selectedDifficulty);
+      });
+      updateStartState();
+    });
+  });
+
+  function updateStartState() {
+    if (!selectedGrade && !selectedMode && !selectedDifficulty) {
+      selectedInfo.textContent = 'Bitte Klasse, Aufgabentyp und Schwierigkeit wählen.';
       startBtn.disabled = true;
       return;
     }
-    let text = '';
-    if (selectedCategory === 'length') text = 'Ausgewählte Kategorie: Längen';
-    if (selectedCategory === 'weight') text = 'Ausgewählte Kategorie: Gewicht';
-    if (selectedCategory === 'volume') text = 'Ausgewählte Kategorie: Volumen';
-    selectedInfo.textContent = text;
+    if (!selectedGrade) {
+      selectedInfo.textContent = 'Bitte eine Klasse auswählen.';
+      startBtn.disabled = true;
+      return;
+    }
+    if (!selectedMode) {
+      selectedInfo.textContent = 'Bitte einen Aufgabentyp auswählen.';
+      startBtn.disabled = true;
+      return;
+    }
+    if (!selectedDifficulty) {
+      selectedInfo.textContent = 'Bitte eine Schwierigkeit auswählen.';
+      startBtn.disabled = true;
+      return;
+    }
+    const gradeText = selectedGrade === '3' ? '3. Klasse' : '4. Klasse';
+    const modeText = selectedMode === 'normal'
+      ? (selectedGrade === '3'
+          ? 'Normales Einmaleins bis 10'
+          : 'Erweitertes Einmaleins bis 20')
+      : (selectedGrade === '3'
+          ? '10er-Einmaleins bis 10 · 10'
+          : '10er-Einmaleins bis 99 · 10');
+
+    const diffText =
+      selectedDifficulty === 'easy' ? 'einfach (30 s)'
+      : selectedDifficulty === 'medium' ? 'mittel (20 s)'
+      : 'schwierig (15 s)';
+
+    selectedInfo.textContent = `${gradeText}, ${modeText}, ${diffText}`;
     startBtn.disabled = false;
   }
 
-  // --- Events ---
-  startBtn.addEventListener('click', startTraining);
-  submitBtn.addEventListener('click', checkAnswer);
-
-  restartBtn.addEventListener('click', () => {
-    stopTimer();
-    quizScreen.classList.add('hidden');
-    resultScreen.classList.add('hidden');
-    startScreen.classList.remove('hidden');
+  // --- Spielstart ---
+  startBtn.addEventListener('click', () => {
+    startGame();
   });
 
-  finishBtn.addEventListener('click', () => {
-    // LearningView informieren
-    try {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage('AppSolved', '*');
-      }
-    } catch (e) {
-      console.warn('postMessage AppSolved nicht möglich:', e);
-    }
-  });
+  function startGame() {
+    timeLimit = TIME_LIMITS[selectedDifficulty] || 30;
+    position = 0;
+    playerPoints = 0;
+    pcPoints = 0;
+    questionsCount = 0;
+    gameOver = false;
 
-  answerInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      checkAnswer();
-    }
-  });
+    updateTrack();
+    updateStats();
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback';
 
-  // --- Trainingsstart ---
-  function startTraining() {
-    if (!selectedCategory) return;
-
-    questionsDone = 0;
-    correctAnswers = 0;
-    wrongAnswers = 0;
-    usedQuestions = [];
-
-    statCorrect.textContent = '0';
-    statTotal.textContent = TOTAL_QUESTIONS.toString();
-    statWrong.textContent = '0';
-    statCategory.textContent =
-      selectedCategory === 'length' ? 'Längen' :
-      selectedCategory === 'weight' ? 'Gewicht' : 'Volumen';
-
-    feedback.textContent = '';
-    feedback.className = 'feedback';
+    const modeText = selectedMode === 'normal'
+      ? (selectedGrade === '3'
+          ? 'Normales 1×1 bis 10'
+          : 'Erweitertes 1×1 bis 20')
+      : (selectedGrade === '3'
+          ? '10er-1×1 bis 10 · 10'
+          : '10er-1×1 bis 99 · 10');
+    modeLabel.textContent = modeText;
 
     startScreen.classList.add('hidden');
     resultScreen.classList.add('hidden');
     quizScreen.classList.remove('hidden');
 
-    newQuestion();
+    nextQuestion();
+  }
+
+  // --- Aufgaben-Generator ---
+  function generateTask() {
+    let a, b;
+    if (selectedGrade === '3') {
+      if (selectedMode === 'normal') {
+        a = randInt(1, 10);
+        b = randInt(1, 10);
+      } else { // tens
+        a = randInt(1, 10);
+        b = 10;
+      }
+    } else { // 4. Klasse
+      if (selectedMode === 'normal') {
+        a = randInt(1, 20);
+        b = randInt(1, 20);
+      } else { // tens erweitert
+        a = randInt(1, 99);
+        b = 10;
+      }
+    }
+    return { a, b, result: a * b };
+  }
+
+  function nextQuestion() {
+    if (gameOver) return;
+    const task = generateTask();
+    currentA = task.a;
+    currentB = task.b;
+    currentResult = task.result;
+
+    factorAEl.textContent = currentA;
+    factorBEl.textContent = currentB;
+    answerInput.value = '';
+    answerInput.focus();
+
+    resetTimer();
   }
 
   // --- Timer ---
-  function startTimer() {
-    stopTimer();
-    timeLeft = TIME_PER_QUESTION;
-    updateProgressText();
+  function resetTimer() {
+    if (timerId) clearInterval(timerId);
+    timeLeft = timeLimit;
+    updateTimerUI();
+
     timerId = setInterval(() => {
       timeLeft--;
+      updateTimerUI();
       if (timeLeft <= 0) {
-        timeLeft = 0;
-        updateProgressText();
-        handleTimeout();
-      } else {
-        updateProgressText();
+        clearInterval(timerId);
+        handleAnswer(null, true); // Timeout = falsch
       }
     }, 1000);
   }
 
-  function stopTimer() {
-    if (timerId !== null) {
+  function updateTimerUI() {
+    timerDisplay.textContent = `Restzeit: ${timeLeft}s`;
+    timerDisplay.classList.toggle('low', timeLeft <= 5);
+  }
+
+  // --- Arena / Marker ---
+  function buildTrack() {
+    trackEl.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'track-cell';
+      if (i === 4) cell.classList.add('mid');
+      trackEl.appendChild(cell);
+    }
+  }
+
+  function updateTrack() {
+    const cells = trackEl.querySelectorAll('.track-cell');
+    cells.forEach(c => {
+      const marker = c.querySelector('.marker');
+      if (marker) c.removeChild(marker);
+    });
+    const idx = position + 4; // -4..+4 -> 0..8
+    if (idx >= 0 && idx < cells.length) {
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      cells[idx].appendChild(marker);
+    }
+    scoreText.textContent = `${playerPoints} : ${pcPoints}`;
+  }
+
+  function updateStats() {
+    statQuestions.textContent = questionsCount.toString();
+    statPlayer.textContent = playerPoints.toString();
+    statPc.textContent = pcPoints.toString();
+  }
+
+  // --- Antwortbehandlung ---
+  answerBtn.addEventListener('click', () => {
+    const value = answerInput.value.trim();
+    const num = value === '' ? null : Number(value);
+    handleAnswer(num, false);
+  });
+
+  answerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = answerInput.value.trim();
+      const num = value === '' ? null : Number(value);
+      handleAnswer(num, false);
+    }
+  });
+
+  function handleAnswer(value, isTimeout) {
+    if (gameOver) return;
+
+    if (timerId) {
       clearInterval(timerId);
       timerId = null;
     }
-  }
 
-  function updateProgressText() {
-    const num = Math.min(questionsDone + 1, TOTAL_QUESTIONS);
-    progressText.textContent =
-      `Aufgabe ${num} von ${TOTAL_QUESTIONS} – Zeit: ${timeLeft} s`;
-  }
+    const correct = value === currentResult;
+    questionsCount++;
 
-  function handleTimeout() {
-    stopTimer();
-    wrongAnswers++;
-    statWrong.textContent = wrongAnswers.toString();
-    feedback.textContent = 'Zeit abgelaufen. Die richtige Antwort war: ' +
-      currentQuestion.answer + ' ' + currentQuestion.to;
-    feedback.className = 'feedback error';
-
-    questionsDone++;
-    if (questionsDone >= TOTAL_QUESTIONS) {
-      setTimeout(endTraining, 800);
+    if (!isTimeout && correct) {
+      feedbackEl.textContent = 'Richtig! 👍';
+      feedbackEl.className = 'feedback ok';
+      position = Math.min(position + 1, STEP_WIN);
     } else {
-      setTimeout(newQuestion, 800);
-    }
-  }
-
-  // --- Aufgabengenerierung ---
-  function newQuestion() {
-    feedback.textContent = '';
-    feedback.className = 'feedback';
-
-    currentQuestion = generateUniqueQuestion(selectedCategory);
-    equationText.textContent =
-      `${currentQuestion.fromValue} ${currentQuestion.from} = __ ${currentQuestion.to}`;
-    variantLabel.textContent = currentQuestion.label;
-
-    timeLeft = TIME_PER_QUESTION;
-    updateProgressText();
-    answerInput.value = '';
-    answerInput.focus();
-    startTimer();
-  }
-
-  function generateUniqueQuestion(category) {
-    const list = CONVERSIONS[category];
-    let conv, fromValue, toValue, key;
-    let tries = 0;
-
-    while (true) {
-      conv = list[randomInt(0, list.length - 1)];
-      fromValue = randomFromRange(conv.min, conv.max, conv.step);
-
-      if (conv.op === 'mul') {
-        toValue = fromValue * conv.factor;
-      } else {
-        if (fromValue % conv.factor !== 0) {
-          tries++;
-          if (tries > 200) break;
-          continue;
-        }
-        toValue = fromValue / conv.factor;
-      }
-
-      if (!Number.isInteger(toValue)) {
-        tries++;
-        if (tries > 200) break;
-        continue;
-      }
-      if (fromValue < 0 || toValue < 0 ||
-          fromValue > MAX_VALUE || toValue > MAX_VALUE) {
-        tries++;
-        if (tries > 200) break;
-        continue;
-      }
-
-      key = `${category}-${conv.from}-${fromValue}-${conv.to}`;
-      if (!usedQuestions.includes(key)) {
-        usedQuestions.push(key);
-        break;
-      }
-
-      tries++;
-      if (tries > 200) {
-        // Notfall: keine neue Kombination gefunden – Wiederverwendung zulassen
-        break;
-      }
+      feedbackEl.textContent = isTimeout ? 'Zeit abgelaufen – ein Schritt für den PC.' : 'Leider falsch – ein Schritt für den PC.';
+      feedbackEl.className = 'feedback error';
+      position = Math.max(position - 1, -STEP_WIN);
     }
 
-    return {
-      from: conv.from,
-      to: conv.to,
-      op: conv.op,
-      factor: conv.factor,
-      fromValue,
-      answer: toValue,
-      label: conv.label
-    };
-  }
-
-  // --- Antworten prüfen ---
-  function checkAnswer() {
-    const value = answerInput.value.trim();
-    if (value === '') {
-      feedback.textContent = 'Bitte gib eine Zahl ein.';
-      feedback.className = 'feedback error';
-      answerInput.focus();
-      return;
+    // Punktvergabe?
+    if (position >= STEP_WIN) {
+      playerPoints++;
+      position = 0;
+      feedbackEl.textContent += ' Du gewinnst eine Runde!';
+      feedbackEl.className = 'feedback ok';
+    } else if (position <= -STEP_WIN) {
+      pcPoints++;
+      position = 0;
+      feedbackEl.textContent += ' Der PC gewinnt eine Runde.';
+      feedbackEl.className = 'feedback error';
     }
 
-    const given = Number(value);
-    if (!Number.isFinite(given)) {
-      feedback.textContent = 'Das ist keine gültige Zahl.';
-      feedback.className = 'feedback error';
-      answerInput.focus();
-      return;
-    }
+    updateTrack();
+    updateStats();
 
-    stopTimer();
-
-    if (given === currentQuestion.answer) {
-      correctAnswers++;
-      statCorrect.textContent = correctAnswers.toString();
-      feedback.textContent = 'Richtig! 👍';
-      feedback.className = 'feedback ok';
+    // Spielende?
+    if (playerPoints >= POINTS_TO_WIN || pcPoints >= POINTS_TO_WIN) {
+      endGame();
     } else {
-      wrongAnswers++;
-      statWrong.textContent = wrongAnswers.toString();
-      feedback.textContent =
-        'Leider falsch. Die richtige Antwort war: ' +
-        currentQuestion.answer + ' ' + currentQuestion.to;
-      feedback.className = 'feedback error';
-    }
-
-    questionsDone++;
-    if (questionsDone >= TOTAL_QUESTIONS) {
-      setTimeout(endTraining, 800);
-    } else {
-      setTimeout(newQuestion, 800);
+      setTimeout(() => {
+        nextQuestion();
+      }, 800);
     }
   }
 
-  // --- Abschluss ---
-  function endTraining() {
-    stopTimer();
+  function endGame() {
+    gameOver = true;
+    if (timerId) clearInterval(timerId);
+
     quizScreen.classList.add('hidden');
     resultScreen.classList.remove('hidden');
 
-    const quote = (correctAnswers / TOTAL_QUESTIONS * 100).toFixed(0);
-    const catText =
-      selectedCategory === 'length' ? 'Längen' :
-      selectedCategory === 'weight' ? 'Gewicht' : 'Volumen';
-
+    const win = playerPoints > pcPoints;
+    resultTitle.textContent = win ? 'Sieg! 🎉' : 'Niederlage 😕';
     resultSummary.innerHTML =
-      `Du hast <strong>${TOTAL_QUESTIONS}</strong> Aufgaben zu <strong>${catText}</strong> gelöst.<br>` +
-      `Davon waren <strong>${correctAnswers}</strong> richtig ` +
-      `(<strong>${quote}%</strong>).<br>` +
-      `Du hattest insgesamt <strong>${wrongAnswers}</strong> falsche Versuche (inkl. Zeitüberschreitungen).`;
+      `Du hast insgesamt <strong>${questionsCount}</strong> Aufgaben gelöst.<br>` +
+      `Punkte: <strong>Du ${playerPoints}</strong> – <strong>PC ${pcPoints}</strong>.`;
+
+    finishBtn.disabled = false;
+    finishBtn.textContent = 'Fertig';
   }
 
+  // LearningView: Rückmeldung
+  finishBtn.addEventListener('click', () => {
+    finishBtn.disabled = true;
+    finishBtn.textContent = 'Erledigt ✔';
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage('AppSolved', '*');
+      }
+    } catch (e) {
+      console.warn('LearningView-AppSolved nicht möglich:', e);
+    }
+  });
+
+  againBtn.addEventListener('click', () => {
+    resultScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+  });
+
   // --- Hilfsfunktionen ---
-  function randomInt(min, max) {
+  function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function randomFromRange(min, max, step) {
-    const count = Math.floor((max - min) / step) + 1;
-    const idx = randomInt(0, count - 1);
-    return min + idx * step;
-  }
-
-  // Initialer Text
-  updateSelectedInfo();
+  // --- Init ---
+  (function init() {
+    buildTrack();
+    updateTrack();
+    updateStartState();
+  })();
 </script>
 </body>
 </html>
